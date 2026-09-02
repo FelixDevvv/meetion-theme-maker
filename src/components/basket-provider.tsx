@@ -39,6 +39,24 @@ type BasketContextValue = {
 
 const BasketContext = createContext<BasketContextValue | null>(null);
 
+// Tebex puede devolver arrays anidados (p.ej. `[[]]`) cuando la tienda no tiene
+// métodos de login activos. Buscamos recursivamente la primera URL válida.
+function findAuthUrl(raw: unknown): string | null {
+  if (!raw) return null;
+  if (Array.isArray(raw)) {
+    for (const entry of raw) {
+      const found = findAuthUrl(entry);
+      if (found) return found;
+    }
+    return null;
+  }
+  if (typeof raw === "object" && "url" in raw) {
+    const url = (raw as { url?: unknown }).url;
+    return typeof url === "string" && url.length > 0 ? url : null;
+  }
+  return null;
+}
+
 export function BasketProvider({ children }: { children: ReactNode }) {
   const create = useServerFn(createBasket);
   const fetchBasket = useServerFn(getBasket);
@@ -104,21 +122,34 @@ export function BasketProvider({ children }: { children: ReactNode }) {
         // paquetes. Si Tebex devuelve enlaces de auth, la cesta no está
         // autenticada todavía: enviamos al usuario a iniciar sesión y al
         // volver añadimos el paquete pendiente automáticamente.
-        const links = await authLinks({
+        const authUrl = await authLinks({
           data: { ident, returnUrl: `${window.location.origin}${window.location.pathname}` },
-        }).catch(() => [] as { name: string; url: string }[]);
+        })
+          .then(findAuthUrl)
+          .catch(() => null);
 
-        if (Array.isArray(links) && links.length > 0 && links[0]?.url) {
+        if (authUrl) {
           localStorage.setItem(PENDING_KEY, JSON.stringify({ packageId, quantity }));
           toast.info("Vincula tu cuenta del juego para continuar…");
-          window.location.href = links[0].url;
+          window.location.href = authUrl;
           return;
         }
 
-        const updated = await addItem({ data: { ident, packageId, quantity } });
-        setBasket(updated);
-        setOpen(true);
-        toast.success("Añadido a la cesta");
+        try {
+          const updated = await addItem({ data: { ident, packageId, quantity } });
+          setBasket(updated);
+          setOpen(true);
+          toast.success("Añadido a la cesta");
+        } catch (error) {
+          const message = error instanceof Error ? error.message : "";
+          if (message.includes("must login")) {
+            throw new Error(
+              "Tebex requiere vincular la cuenta del juego, pero la tienda no tiene métodos de login activos. Activa la tienda y su autenticación en el panel de Tebex.",
+            );
+          }
+          throw error;
+        }
+
       });
     },
     [addItem, authLinks, ensureBasket, withErrors],
@@ -166,14 +197,17 @@ export function BasketProvider({ children }: { children: ReactNode }) {
   const checkout = useCallback(async () => {
     await withErrors(async () => {
       const ident = await ensureBasket();
-      const links = await authLinks({
+      const authUrl = await authLinks({
         data: { ident, returnUrl: `${window.location.origin}/` },
-      }).catch(() => [] as { name: string; url: string }[]);
+      })
+        .then(findAuthUrl)
+        .catch(() => null);
 
-      if (Array.isArray(links) && links.length > 0 && links[0]?.url) {
-        window.location.href = links[0].url;
+      if (authUrl) {
+        window.location.href = authUrl;
         return;
       }
+
       const current = basket ?? (await fetchBasket({ data: { ident } }));
       if (!current.links?.checkout) throw new Error("Tebex no devolvió un enlace de pago.");
       window.location.href = current.links.checkout;
