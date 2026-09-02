@@ -179,14 +179,17 @@ export function BasketProvider({ children }: { children: ReactNode }) {
   const checkout = useCallback(async () => {
     await withErrors(async () => {
       const ident = await ensureBasket();
-      const links = await authLinks({
+      const authUrl = await authLinks({
         data: { ident, returnUrl: `${window.location.origin}/` },
-      }).catch(() => [] as { name: string; url: string }[]);
+      })
+        .then(findAuthUrl)
+        .catch(() => null);
 
-      if (Array.isArray(links) && links.length > 0 && links[0]?.url) {
-        window.location.href = links[0].url;
+      if (authUrl) {
+        window.location.href = authUrl;
         return;
       }
+
       const current = basket ?? (await fetchBasket({ data: { ident } }));
       if (!current.links?.checkout) throw new Error("Tebex no devolvió un enlace de pago.");
       window.location.href = current.links.checkout;
