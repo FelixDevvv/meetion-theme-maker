@@ -38,8 +38,8 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --font-display: "Oswald", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Barlow", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Trenda", "Mulish", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Trenda", "Mulish", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
