@@ -39,6 +39,24 @@ type BasketContextValue = {
 
 const BasketContext = createContext<BasketContextValue | null>(null);
 
+// Tebex puede devolver arrays anidados (p.ej. `[[]]`) cuando la tienda no tiene
+// métodos de login activos. Buscamos recursivamente la primera URL válida.
+function findAuthUrl(raw: unknown): string | null {
+  if (!raw) return null;
+  if (Array.isArray(raw)) {
+    for (const entry of raw) {
+      const found = findAuthUrl(entry);
+      if (found) return found;
+    }
+    return null;
+  }
+  if (typeof raw === "object" && "url" in raw) {
+    const url = (raw as { url?: unknown }).url;
+    return typeof url === "string" && url.length > 0 ? url : null;
+  }
+  return null;
+}
+
 export function BasketProvider({ children }: { children: ReactNode }) {
   const create = useServerFn(createBasket);
   const fetchBasket = useServerFn(getBasket);
