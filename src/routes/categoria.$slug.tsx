@@ -21,7 +21,7 @@ export const Route = createFileRoute("/categoria/$slug")({
     ],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(categoriesQuery),
-  component: CategoryPage;
+  component: CategoryPage,
 });
 
 function CategoryPage() {
