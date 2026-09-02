@@ -21,6 +21,7 @@ import type { TebexBasket } from "@/lib/tebex";
 
 const BASKET_KEY = "tebex_basket_ident";
 const USERNAME_KEY = "tebex_username";
+const PENDING_KEY = "tebex_pending_package";
 
 type BasketContextValue = {
   basket: TebexBasket | null;
