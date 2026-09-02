@@ -104,21 +104,34 @@ export function BasketProvider({ children }: { children: ReactNode }) {
         // paquetes. Si Tebex devuelve enlaces de auth, la cesta no está
         // autenticada todavía: enviamos al usuario a iniciar sesión y al
         // volver añadimos el paquete pendiente automáticamente.
-        const links = await authLinks({
+        const authUrl = await authLinks({
           data: { ident, returnUrl: `${window.location.origin}${window.location.pathname}` },
-        }).catch(() => [] as { name: string; url: string }[]);
+        })
+          .then(findAuthUrl)
+          .catch(() => null);
 
-        if (Array.isArray(links) && links.length > 0 && links[0]?.url) {
+        if (authUrl) {
           localStorage.setItem(PENDING_KEY, JSON.stringify({ packageId, quantity }));
           toast.info("Vincula tu cuenta del juego para continuar…");
-          window.location.href = links[0].url;
+          window.location.href = authUrl;
           return;
         }
 
-        const updated = await addItem({ data: { ident, packageId, quantity } });
-        setBasket(updated);
-        setOpen(true);
-        toast.success("Añadido a la cesta");
+        try {
+          const updated = await addItem({ data: { ident, packageId, quantity } });
+          setBasket(updated);
+          setOpen(true);
+          toast.success("Añadido a la cesta");
+        } catch (error) {
+          const message = error instanceof Error ? error.message : "";
+          if (message.includes("must login")) {
+            throw new Error(
+              "Tebex requiere vincular la cuenta del juego, pero la tienda no tiene métodos de login activos. Activa la tienda y su autenticación en el panel de Tebex.",
+            );
+          }
+          throw error;
+        }
+
       });
     },
     [addItem, authLinks, ensureBasket, withErrors],
