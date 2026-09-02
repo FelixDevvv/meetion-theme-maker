@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CategoriaSlugRouteImport } from './routes/categoria.$slug'
+import { Route as PaqueteIdRouteImport } from './routes/paquete.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,40 @@ const CategoriaSlugRoute = CategoriaSlugRouteImport.update({
   path: '/categoria/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PaqueteIdRoute = PaqueteIdRouteImport.update({
+  id: '/paquete/$id',
+  path: '/paquete/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/categoria/$slug': typeof CategoriaSlugRoute
+  '/paquete/$id': typeof PaqueteIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/categoria/$slug': typeof CategoriaSlugRoute
+  '/paquete/$id': typeof PaqueteIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/categoria/$slug': typeof CategoriaSlugRoute
+  '/paquete/$id': typeof PaqueteIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/categoria/$slug'
+  fullPaths: '/' | '/categoria/$slug' | '/paquete/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/categoria/$slug'
-  id: '__root__' | '/' | '/categoria/$slug'
+  to: '/' | '/categoria/$slug' | '/paquete/$id'
+  id: '__root__' | '/' | '/categoria/$slug' | '/paquete/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CategoriaSlugRoute: typeof CategoriaSlugRoute
+  PaqueteIdRoute: typeof PaqueteIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CategoriaSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/paquete/$id': {
+      id: '/paquete/$id'
+      path: '/paquete/$id'
+      fullPath: '/paquete/$id'
+      preLoaderRoute: typeof PaqueteIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CategoriaSlugRoute: CategoriaSlugRoute,
+  PaqueteIdRoute: PaqueteIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
