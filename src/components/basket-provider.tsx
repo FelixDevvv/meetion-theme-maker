@@ -98,14 +98,44 @@ export function BasketProvider({ children }: { children: ReactNode }) {
     async (packageId: number, quantity = 1) => {
       await withErrors(async () => {
         const ident = await ensureBasket();
+
+        // Las tiendas de Minecraft exigen vincular la cuenta antes de añadir
+        // paquetes. Si Tebex devuelve enlaces de auth, la cesta no está
+        // autenticada todavía: enviamos al usuario a iniciar sesión y al
+        // volver añadimos el paquete pendiente automáticamente.
+        const links = await authLinks({
+          data: { ident, returnUrl: `${window.location.origin}${window.location.pathname}` },
+        }).catch(() => [] as { name: string; url: string }[]);
+
+        if (Array.isArray(links) && links.length > 0 && links[0]?.url) {
+          localStorage.setItem(PENDING_KEY, JSON.stringify({ packageId, quantity }));
+          toast.info("Vincula tu cuenta del juego para continuar…");
+          window.location.href = links[0].url;
+          return;
+        }
+
         const updated = await addItem({ data: { ident, packageId, quantity } });
         setBasket(updated);
         setOpen(true);
         toast.success("Añadido a la cesta");
       });
     },
-    [addItem, ensureBasket, withErrors],
+    [addItem, authLinks, ensureBasket, withErrors],
   );
+
+  // Al regresar del login de Tebex, añade el paquete que quedó pendiente.
+  useEffect(() => {
+    const raw = localStorage.getItem(PENDING_KEY);
+    if (!raw) return;
+    localStorage.removeItem(PENDING_KEY);
+    try {
+      const pending = JSON.parse(raw) as { packageId: number; quantity?: number };
+      void add(pending.packageId, pending.quantity ?? 1);
+    } catch {
+      /* ignorar */
+    }
+  }, [add]);
+
 
   const setQuantity = useCallback(
     async (packageId: number, quantity: number) => {
