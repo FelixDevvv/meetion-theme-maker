@@ -3,8 +3,6 @@ import { Copy, Play, ShoppingCart, User } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import heroBg from "@/assets/hero-bg.jpg";
-import nexoraMark from "@/assets/nexora-n.png.asset.json";
-import nexoraTitle from "@/assets/nexora-network-title.png.asset.json";
 import { useBasket } from "@/components/basket-provider";
 import { Button } from "@/components/ui/button";
 import {
@@ -61,7 +59,7 @@ export function StoreHero({ storeName }: { storeName?: string }) {
               aria-label="Volver al inicio"
               className="panel-card flex size-14 items-center justify-center p-1.5 text-foreground transition-transform hover:scale-105"
             >
-              <img src={nexoraMark.url} alt="Nexora Network" className="h-full w-full object-contain" />
+              <img src="/nexora-n.png" alt="Nexora Network" className="h-full w-full object-contain" />
             </Link>
             <div className="flex items-center gap-2">
               <button
@@ -96,7 +94,7 @@ export function StoreHero({ storeName }: { storeName?: string }) {
 
           <div className="flex flex-1 flex-col items-center justify-center py-8">
             <img
-              src={nexoraTitle.url}
+              src="/nexora-network-title.png"
               alt={storeName ?? STORE_CONFIG.serverName}
               width={1024}
               height={310}
