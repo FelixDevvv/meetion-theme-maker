@@ -8,16 +8,18 @@ import { categoriesQuery } from "@/lib/tebex-queries";
 export const Route = createFileRoute("/categoria/$slug")({
   head: () => ({
     meta: [
-      { title: "Categoría — Tienda MeeTion MC" },
+      { title: "Categoría — Tienda Nexora Network" },
       {
         name: "description",
-        content: "Explora los paquetes de esta categoría en la tienda de MeeTion MC.",
+        content: "Explora los paquetes de esta categoría en la tienda de Nexora Network.",
       },
-      { property: "og:title", content: "Categoría — Tienda MeeTion MC" },
+      { property: "og:title", content: "Categoría — Tienda Nexora Network" },
       {
         property: "og:description",
-        content: "Explora los paquetes de esta categoría en la tienda de MeeTion MC.",
+        content: "Explora los paquetes de esta categoría en la tienda de Nexora Network.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(categoriesQuery),

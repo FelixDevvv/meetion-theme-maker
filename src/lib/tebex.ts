@@ -4,7 +4,7 @@
  * TEBEX_PUBLIC_TOKEN es el identificador público del webstore: es seguro
  * exponerlo en el cliente (solo permite leer el catálogo y gestionar cestas).
  */
-export const TEBEX_PUBLIC_TOKEN = "14gyc-3aab24b520892f2765ed359ac42d7a316b9acb78";
+export const TEBEX_PUBLIC_TOKEN = "14kbn-4f3b2d79f1651d04b5584758fbebb2a26f844695";
 
 export const TEBEX_API = "https://headless.tebex.io/api";
 

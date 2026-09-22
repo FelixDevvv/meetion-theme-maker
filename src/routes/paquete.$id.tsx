@@ -10,11 +10,13 @@ import { packageQuery } from "@/lib/tebex-queries";
 export const Route = createFileRoute("/paquete/$id")({
   head: () => ({
     meta: [
-      { title: "Paquete — Tienda MeeTion MC" },
+      { title: "Paquete — Tienda Nexora Network" },
       {
         name: "description",
         content: "Detalles del paquete: precio, contenido y compra segura con Tebex.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { property: "og:title", content: "Paquete — Tienda MeeTion MC" },
       {
         property: "og:description",
