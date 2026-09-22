@@ -120,3 +120,25 @@
   font-size: 0.72rem;
   font-weight: 600;
 }
+
+@keyframes brand-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 10px 26px color-mix(in oklab, var(--primary) 45%, transparent));
+  }
+  50% {
+    transform: scale(1.045);
+    filter: drop-shadow(0 14px 36px color-mix(in oklab, var(--primary-glow) 68%, transparent));
+  }
+}
+
+@utility animate-brand-pulse {
+  animation: brand-pulse 3.8s ease-in-out infinite;
+  transform-origin: center;
+  will-change: transform, filter;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}

@@ -3,7 +3,8 @@ import { Copy, Play, ShoppingCart, User } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import heroBg from "@/assets/hero-bg.jpg";
-import logo from "@/assets/logo.png";
+import nexoraMark from "@/assets/nexora-n.png.asset.json";
+import nexoraTitle from "@/assets/nexora-network-title.png.asset.json";
 import { useBasket } from "@/components/basket-provider";
 import { Button } from "@/components/ui/button";
 import {
@@ -57,9 +58,10 @@ export function StoreHero({ storeName }: { storeName?: string }) {
           <div className="flex items-start justify-between gap-3">
             <Link
               to="/"
-              className="panel-card label-caps flex items-center gap-2 px-3 py-2 text-foreground"
+              aria-label="Volver al inicio"
+              className="panel-card flex size-14 items-center justify-center p-1.5 text-foreground transition-transform hover:scale-105"
             >
-              ← Inicio
+              <img src={nexoraMark.url} alt="Nexora Network" className="h-full w-full object-contain" />
             </Link>
             <div className="flex items-center gap-2">
               <button
@@ -92,17 +94,15 @@ export function StoreHero({ storeName }: { storeName?: string }) {
             </div>
           </div>
 
-          <div className="flex flex-1 flex-col items-center justify-center gap-4 py-6">
+          <div className="flex flex-1 flex-col items-center justify-center py-8">
             <img
-              src={logo}
-              alt={`Logo de ${storeName ?? STORE_CONFIG.serverName}`}
-              width={768}
-              height={768}
-              className="h-32 w-auto drop-shadow-[0_10px_30px_oklch(0.68_0.23_320/60%)] sm:h-44"
+              src={nexoraTitle.url}
+              alt={storeName ?? STORE_CONFIG.serverName}
+              width={1024}
+              height={310}
+              className="animate-brand-pulse w-[min(88vw,680px)] object-contain"
             />
-            <h1 className="font-display text-3xl uppercase tracking-widest sm:text-5xl">
-              {storeName ?? STORE_CONFIG.serverName}
-            </h1>
+            <h1 className="sr-only">{storeName ?? STORE_CONFIG.serverName}</h1>
           </div>
 
           <div className="flex flex-wrap items-end justify-between gap-4">
