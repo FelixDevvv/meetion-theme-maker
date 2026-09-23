@@ -39,8 +39,9 @@ function CategoryPage() {
         </div>
       ) : (
         <>
-          <section className="panel-card p-5">
-            <h1 className="font-display text-2xl uppercase tracking-widest text-primary-glow">
+          <section className="panel-card border-l-4 border-l-primary p-6 sm:p-8">
+            <p className="label-caps text-muted-foreground">Estás viendo</p>
+            <h1 className="mt-1 font-display text-3xl font-black uppercase text-primary-glow sm:text-4xl">
               {category.name}
             </h1>
             {stripHtml(category.description) && (
@@ -49,7 +50,7 @@ function CategoryPage() {
               </p>
             )}
           </section>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-x-4 gap-y-6 sm:grid-cols-2">
             {category.packages.map((pkg) => (
               <PackageCard key={pkg.id} pkg={pkg} />
             ))}

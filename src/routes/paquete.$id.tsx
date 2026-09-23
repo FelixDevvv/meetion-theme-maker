@@ -17,7 +17,7 @@ export const Route = createFileRoute("/paquete/$id")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:title", content: "Paquete — Tienda MeeTion MC" },
+      { property: "og:title", content: "Paquete — Tienda Nexora Network" },
       {
         property: "og:description",
         content: "Detalles del paquete: precio, contenido y compra segura con Tebex.",
