@@ -1,60 +1,61 @@
-import { Link } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { Info, ShoppingCart } from "lucide-react";
 import { useBasket } from "@/components/basket-provider";
-import { formatPrice, stripHtml, type TebexPackage } from "@/lib/tebex";
+import { PackagePreviewDialog } from "@/components/package-preview-dialog";
+import { Button } from "@/components/ui/button";
+import { formatPrice, type TebexPackage } from "@/lib/tebex";
 
 export function PackageCard({ pkg }: { pkg: TebexPackage }) {
   const { add, loading } = useBasket();
   const hasDiscount = pkg.discount > 0;
 
   return (
-    <article className="panel-card group relative flex flex-col overflow-hidden transition-transform hover:-translate-y-0.5 hover:glow">
+    <article className="panel-card group relative flex min-h-[360px] flex-col p-5 pt-7 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/50 hover:glow">
       {hasDiscount && (
-        <span className="gradient-primary absolute right-2 top-2 z-10 rounded px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
-          -{formatPrice(pkg.discount, pkg.currency)}
+        <span className="gradient-primary absolute -top-3 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded px-3 py-1 text-[10px] font-extrabold uppercase text-primary-foreground">
+          {Math.round((pkg.discount / (pkg.base_price + pkg.discount)) * 100)}% de descuento
         </span>
       )}
-      <Link
-        to="/paquete/$id"
-        params={{ id: String(pkg.id) }}
-        className="flex flex-1 flex-col gap-3 p-4"
-      >
-        <div className="flex items-center justify-center rounded-md bg-background/40 p-3">
+      <div className="flex flex-1 flex-col items-center text-center">
+        <div className="flex h-44 w-full items-center justify-center p-3">
           {pkg.image ? (
             <img
               src={pkg.image}
               alt={pkg.name}
               loading="lazy"
-              className="h-20 w-auto object-contain"
+              className="max-h-36 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
-            <div className="gradient-primary h-20 w-20 rounded-md" />
+            <div className="gradient-primary size-28 rounded-md" />
           )}
         </div>
-        <div>
-          <h3 className="font-display text-base uppercase tracking-wide">{pkg.name}</h3>
-          <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-            {stripHtml(pkg.description) || "Paquete de la tienda"}
-          </p>
-        </div>
-        <div className="mt-auto flex items-baseline gap-2">
+        <h3 className="font-display min-h-12 text-lg font-extrabold uppercase">{pkg.name}</h3>
+        <div className="mt-2 flex items-baseline justify-center gap-2">
+          <span className="font-display text-xl font-black text-primary-glow">
+            {formatPrice(pkg.total_price, pkg.currency)}
+          </span>
           {hasDiscount && (
-            <span className="text-xs text-muted-foreground line-through">
+            <span className="text-sm font-bold text-destructive line-through opacity-80">
               {formatPrice(pkg.base_price + pkg.discount, pkg.currency)}
             </span>
           )}
-          <span className="font-display text-lg text-primary-glow">
-            {formatPrice(pkg.total_price, pkg.currency)}
-          </span>
         </div>
-      </Link>
-      <button
-        disabled={loading}
-        onClick={() => void add(pkg.id)}
-        className="gradient-primary label-caps flex items-center justify-center gap-2 py-2 text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
-      >
-        <Plus className="size-4" /> Añadir a la cesta
-      </button>
+      </div>
+      <div className="mt-5 flex gap-2">
+        <PackagePreviewDialog pkg={pkg}>
+          <Button variant="outline" size="icon" className="size-11 shrink-0" title="Ver información">
+            <Info className="size-5" />
+            <span className="sr-only">Ver información de {pkg.name}</span>
+          </Button>
+        </PackagePreviewDialog>
+        <Button
+          disabled={loading}
+          onClick={() => void add(pkg.id)}
+          className="h-11 min-w-0 flex-1 gap-2 px-3 font-bold"
+        >
+          <ShoppingCart className="size-5" />
+          <span className="truncate">Añadir al carrito</span>
+        </Button>
+      </div>
     </article>
   );
 }
