@@ -65,6 +65,11 @@ export type TebexCategory = {
   slug: string | null;
   description: string | null;
   image_url?: string | null;
+  parent?: {
+    id: number;
+    name: string;
+    slug?: string | null;
+  } | null;
   order: number;
   packages: TebexPackage[];
 };

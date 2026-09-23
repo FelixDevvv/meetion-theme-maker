@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Gift, LayoutGrid, Trophy, Users } from "lucide-react";
+import { ChevronUp, Gift, LayoutGrid, Trophy, Users } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -8,14 +8,27 @@ import { STORE_CONFIG, avatarUrl, categorySlug, type TebexCategory } from "@/lib
 
 export function StoreSidebar({ categories }: { categories: TebexCategory[] }) {
   const [openCategories, setOpenCategories] = useState(true);
+  const [openCategoryIds, setOpenCategoryIds] = useState<Set<number>>(() => new Set());
   const [coupon, setCoupon] = useState("");
+  const rootCategories = categories.filter((category) => !category.parent);
+
+  const toggleCategory = (categoryId: number) => {
+    setOpenCategoryIds((current) => {
+      const next = new Set(current);
+      if (next.has(categoryId)) next.delete(categoryId);
+      else next.add(categoryId);
+      return next;
+    });
+  };
 
   return (
     <aside className="flex w-full flex-col gap-4 lg:w-72 lg:shrink-0">
       <div className="panel-card overflow-hidden">
-        <button
+        <Button
+          type="button"
+          variant="ghost"
           onClick={() => setOpenCategories((value) => !value)}
-          className="flex w-full items-center gap-3 px-4 py-4 text-left transition-colors hover:bg-secondary/60"
+          className="h-auto w-full justify-start gap-3 rounded-none px-4 py-4 text-left hover:bg-secondary/60"
         >
           <LayoutGrid className="size-6 text-primary-glow" />
           <span>
@@ -24,7 +37,7 @@ export function StoreSidebar({ categories }: { categories: TebexCategory[] }) {
             </span>
             <span className="font-display text-base uppercase">Selecciona una categoría</span>
           </span>
-        </button>
+        </Button>
         {openCategories && (
           <nav className="border-t border-border">
             {categories.length === 0 && (
@@ -32,27 +45,74 @@ export function StoreSidebar({ categories }: { categories: TebexCategory[] }) {
                 Todavía no hay categorías en la tienda.
               </p>
             )}
-            {categories.map((category) => (
-              <Link
-                key={category.id}
-                to="/categoria/$slug"
-                params={{ slug: categorySlug(category) }}
-                className="flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-secondary/60"
-                activeProps={{ className: "bg-secondary/80 text-primary-glow" }}
-              >
-                {category.image_url ? (
-                  <img
-                    src={category.image_url}
-                    alt=""
-                    loading="lazy"
-                    className="size-7 rounded object-cover"
-                  />
-                ) : (
-                  <span className="gradient-primary size-7 rounded" />
-                )}
-                <span className="font-display uppercase tracking-wide">{category.name}</span>
-              </Link>
-            ))}
+            {rootCategories.map((category) => {
+              const children = categories.filter((item) => item.parent?.id === category.id);
+              const isOpen = openCategoryIds.has(category.id);
+              const categoryIcon = category.image_url ? (
+                <img
+                  src={category.image_url}
+                  alt=""
+                  loading="lazy"
+                  className="size-7 rounded object-cover"
+                />
+              ) : (
+                <span className="gradient-primary size-7 rounded" />
+              );
+
+              if (children.length === 0) {
+                return (
+                  <Link
+                    key={category.id}
+                    to="/categoria/$slug"
+                    params={{ slug: categorySlug(category) }}
+                    className="flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-secondary/60"
+                    activeProps={{ className: "bg-secondary/80 text-primary-glow" }}
+                  >
+                    {categoryIcon}
+                    <span className="font-display uppercase tracking-wide">{category.name}</span>
+                  </Link>
+                );
+              }
+
+              return (
+                <div key={category.id} className="border-b border-border/70 last:border-b-0">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    aria-expanded={isOpen}
+                    aria-controls={`subcategory-${category.id}`}
+                    onClick={() => toggleCategory(category.id)}
+                    className="h-auto w-full justify-start gap-3 rounded-none px-4 py-3 text-left hover:bg-secondary/60"
+                  >
+                    {categoryIcon}
+                    <span className="min-w-0 flex-1 font-display text-sm uppercase tracking-wide">
+                      {category.name}
+                    </span>
+                    <ChevronUp
+                      className={`size-4 shrink-0 text-primary-glow transition-transform duration-300 ease-in-out ${isOpen ? "rotate-180" : ""}`}
+                    />
+                  </Button>
+                  <div
+                    id={`subcategory-${category.id}`}
+                    className={`grid overflow-hidden bg-background/25 transition-[grid-template-rows,opacity] duration-300 ease-in-out ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+                  >
+                    <div className="min-h-0">
+                      {children.map((child) => (
+                        <Link
+                          key={child.id}
+                          to="/categoria/$slug"
+                          params={{ slug: categorySlug(child) }}
+                          className="flex items-center border-t border-border/50 py-3 pr-4 pl-14 text-sm transition-colors hover:bg-secondary/60"
+                          activeProps={{ className: "bg-secondary/80 text-primary-glow" }}
+                        >
+                          <span className="font-display uppercase tracking-wide">{child.name}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </nav>
         )}
       </div>
