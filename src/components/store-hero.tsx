@@ -2,7 +2,9 @@ import { Link } from "@tanstack/react-router";
 import { Copy, Play, ShoppingCart, User } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import heroBg from "@/assets/hero-bg.jpg";
+import heroBg from "@/assets/vortex-hero-bg.jpg";
+import vortexMark from "@/assets/vortexsmp.png.asset.json";
+import vortexTitle from "@/assets/vortexmc-network.png.asset.json";
 import { useBasket } from "@/components/basket-provider";
 import { Button } from "@/components/ui/button";
 import {
@@ -59,7 +61,11 @@ export function StoreHero({ storeName }: { storeName?: string }) {
               aria-label="Volver al inicio"
               className="panel-card flex size-14 items-center justify-center p-1.5 text-foreground transition-transform hover:scale-105"
             >
-              <img src="/nexora-n.png" alt="Nexora Network" className="h-full w-full object-contain" />
+              <img
+                src={vortexMark.url}
+                alt="VortexMC Network"
+                className="h-full w-full object-contain"
+              />
             </Link>
             <div className="flex items-center gap-2">
               <button
@@ -94,7 +100,7 @@ export function StoreHero({ storeName }: { storeName?: string }) {
 
           <div className="flex flex-1 flex-col items-center justify-center py-8">
             <img
-              src="/nexora-network-title.png"
+              src={vortexTitle.url}
               alt={storeName ?? STORE_CONFIG.serverName}
               width={1024}
               height={310}

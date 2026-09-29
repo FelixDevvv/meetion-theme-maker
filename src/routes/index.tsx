@@ -8,13 +8,13 @@ import { categoriesQuery, storeQuery } from "@/lib/tebex-queries";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Tienda Nexora Network — Rangos, llaves y cosméticos" },
+      { title: "Tienda VortexMC Network — Rangos, llaves y cosméticos" },
       {
         name: "description",
         content:
-          "Compra rangos VIP, llaves y cosméticos para Nexora Network. Pagos seguros con Tebex y entrega instantánea en el servidor.",
+          "Compra rangos VIP, llaves y cosméticos para VortexMC Network. Pagos seguros con Tebex y entrega instantánea en el servidor.",
       },
-      { property: "og:title", content: "Tienda Nexora Network — Rangos, llaves y cosméticos" },
+      { property: "og:title", content: "Tienda VortexMC Network — Rangos, llaves y cosméticos" },
       {
         property: "og:description",
         content: "Rangos VIP, llaves y cosméticos con entrega instantánea.",

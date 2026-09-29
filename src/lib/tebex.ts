@@ -13,9 +13,9 @@ export const TEBEX_API = "https://headless.tebex.io/api";
  * EDITA ESTOS VALORES para tu servidor.
  */
 export const STORE_CONFIG = {
-  serverName: "NEXORA NETWORK",
-  serverIp: "play.nexoramc.net",
-  discordUrl: "https://discord.gg/nexora",
+  serverName: "VORTEXMC NETWORK",
+  serverIp: "play.vortexmc.net",
+  discordUrl: "https://discord.gg/vortexmc",
   playersOnline: 308,
   discordMembers: 1009,
   monthlyGoal: { current: 190, target: 1000, currency: "USD" },
