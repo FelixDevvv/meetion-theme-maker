@@ -8,13 +8,13 @@ import { categoriesQuery, storeQuery } from "@/lib/tebex-queries";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Tienda Nexora Network — Rangos, llaves y cosméticos" },
+      { title: "Tienda VortexMC Network — Rangos, llaves y cosméticos" },
       {
         name: "description",
         content:
-          "Compra rangos VIP, llaves y cosméticos para Nexora Network. Pagos seguros con Tebex y entrega instantánea en el servidor.",
+          "Compra rangos VIP, llaves y cosméticos para VortexMC Network. Pagos seguros con Tebex y entrega instantánea en el servidor.",
       },
-      { property: "og:title", content: "Tienda Nexora Network — Rangos, llaves y cosméticos" },
+      { property: "og:title", content: "Tienda VortexMC Network — Rangos, llaves y cosméticos" },
       {
         property: "og:description",
         content: "Rangos VIP, llaves y cosméticos con entrega instantánea.",
@@ -33,7 +33,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const { data: store } = useSuspenseQuery(storeQuery);
+  useSuspenseQuery(storeQuery);
   const { data: categories } = useSuspenseQuery(categoriesQuery);
   const goal = STORE_CONFIG.monthlyGoal;
   const pct = Math.min(100, Math.round((goal.current / goal.target) * 100));
@@ -42,7 +42,7 @@ function Index() {
     <StoreLayout>
       <section className="panel-card p-5">
         <h1 className="font-display text-2xl uppercase tracking-widest text-primary-glow">
-          Bienvenido a {store?.name ?? STORE_CONFIG.serverName}
+          Bienvenido a {STORE_CONFIG.serverName}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Gracias por apoyar el servidor. Elige una categoría en el menú lateral o explora

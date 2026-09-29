@@ -79,8 +79,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Tienda Nexora Network" },
-      { name: "description", content: "Rangos, llaves y cosméticos para Nexora Network." },
+      { title: "Tienda VortexMC Network" },
+      { name: "description", content: "Rangos, llaves y cosméticos para VortexMC Network." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

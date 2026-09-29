@@ -8,15 +8,15 @@ import { categoriesQuery } from "@/lib/tebex-queries";
 export const Route = createFileRoute("/categoria/$slug")({
   head: () => ({
     meta: [
-      { title: "Categoría — Tienda Nexora Network" },
+      { title: "Categoría — Tienda VortexMC Network" },
       {
         name: "description",
-        content: "Explora los paquetes de esta categoría en la tienda de Nexora Network.",
+        content: "Explora los paquetes de esta categoría en la tienda de VortexMC Network.",
       },
-      { property: "og:title", content: "Categoría — Tienda Nexora Network" },
+      { property: "og:title", content: "Categoría — Tienda VortexMC Network" },
       {
         property: "og:description",
-        content: "Explora los paquetes de esta categoría en la tienda de Nexora Network.",
+        content: "Explora los paquetes de esta categoría en la tienda de VortexMC Network.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
