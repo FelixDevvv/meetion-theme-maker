@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Copy, Play, ShoppingCart, User } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import heroBg from "@/assets/vortex-hero-bg.jpg";
+import heroBg from "@/assets/vortex-hero-bg.png";
 import vortexMark from "@/assets/vortexsmp.png.asset.json";
 import vortexTitle from "@/assets/vortexmc-network.png.asset.json";
 import { useBasket } from "@/components/basket-provider";

@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Brand the storefront as VortexMC Network with a black and electric-yellow visual system; this keeps all pages consistent with the supplied Vortex artwork.
