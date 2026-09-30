@@ -4,7 +4,7 @@
  * TEBEX_PUBLIC_TOKEN es el identificador público del webstore: es seguro
  * exponerlo en el cliente (solo permite leer el catálogo y gestionar cestas).
  */
-export const TEBEX_PUBLIC_TOKEN = "14kbn-4f3b2d79f1651d04b5584758fbebb2a26f844695";
+export const TEBEX_PUBLIC_TOKEN = "14sjg-83f780ca8298d2adaaf3f0fb947e5a9984283adf";
 
 export const TEBEX_API = "https://headless.tebex.io/api";
 
@@ -14,8 +14,8 @@ export const TEBEX_API = "https://headless.tebex.io/api";
  */
 export const STORE_CONFIG = {
   serverName: "VORTEXMC NETWORK",
-  serverIp: "play.vortexmc.net",
-  discordUrl: "https://discord.gg/vortexmc",
+  serverIp: "play.vortexnw.xyz",
+  discordUrl: "https://discord.com/invites/QG364yJM4V/",
   playersOnline: 308,
   discordMembers: 1009,
   monthlyGoal: { current: 190, target: 1000, currency: "USD" },
