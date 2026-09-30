@@ -3,7 +3,7 @@ import { Copy, Play, ShoppingCart, User } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import heroBg from "@/assets/vortex-hero-bg.png";
-import vortexMark from "@/assets/vortexsmp.png.asset.json";
+import vortexMark from "@/assets/vortexmc-mark.png.asset.json";
 import vortexTitle from "@/assets/vortexmc-network.png.asset.json";
 import { useBasket } from "@/components/basket-provider";
 import { Button } from "@/components/ui/button";
