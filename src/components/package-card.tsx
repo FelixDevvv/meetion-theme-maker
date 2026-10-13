@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Info, ShoppingCart } from "lucide-react";
 import { useBasket } from "@/components/basket-provider";
 import { PackagePreviewDialog } from "@/components/package-preview-dialog";
@@ -6,6 +7,7 @@ import { formatPrice, type TebexPackage } from "@/lib/tebex";
 
 export function PackageCard({ pkg }: { pkg: TebexPackage }) {
   const { add, loading } = useBasket();
+  const [imageFailed, setImageFailed] = useState(false);
   const hasDiscount = pkg.discount > 0;
 
   return (
@@ -17,11 +19,12 @@ export function PackageCard({ pkg }: { pkg: TebexPackage }) {
       )}
       <div className="flex flex-1 flex-col items-center text-center">
         <div className="flex h-44 w-full items-center justify-center p-3">
-          {pkg.image ? (
+          {pkg.image && !imageFailed ? (
             <img
               src={pkg.image}
               alt={pkg.name}
               loading="lazy"
+              onError={() => setImageFailed(true)}
               className="max-h-36 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
