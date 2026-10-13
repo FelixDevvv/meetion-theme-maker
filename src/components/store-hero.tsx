@@ -3,8 +3,6 @@ import { Copy, Play, ShoppingCart, User } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import heroBg from "@/assets/vortex-hero-bg.png";
-import vortexMark from "@/assets/vortexmc-mark.png.asset.json";
-import vortexTitle from "@/assets/vortexmc-network.png.asset.json";
 import { useBasket } from "@/components/basket-provider";
 import { Button } from "@/components/ui/button";
 import {
@@ -61,11 +59,7 @@ export function StoreHero({ storeName }: { storeName?: string }) {
               aria-label="Volver al inicio"
               className="panel-card flex size-14 items-center justify-center p-1.5 text-foreground transition-transform hover:scale-105"
             >
-              <img
-                src={vortexMark.url}
-                alt="VortexMC Network"
-                className="h-full w-full object-contain"
-              />
+              <span className="font-display text-2xl font-black tracking-tight text-primary-glow">V</span>
             </Link>
             <div className="flex items-center gap-2">
               <button
@@ -99,13 +93,14 @@ export function StoreHero({ storeName }: { storeName?: string }) {
           </div>
 
           <div className="flex flex-1 flex-col items-center justify-center py-8">
-            <img
-              src={vortexTitle.url}
-              alt={storeName ?? STORE_CONFIG.serverName}
-              width={1024}
-              height={310}
-              className="animate-brand-pulse w-[min(88vw,680px)] object-contain"
-            />
+            <div className="animate-brand-pulse text-center">
+              <div className="font-display text-[clamp(2rem,7vw,5rem)] font-black leading-none tracking-[0.08em] text-primary-glow">
+                VORTEXMC
+              </div>
+              <div className="mt-2 font-display text-[clamp(0.8rem,2vw,1.35rem)] font-bold tracking-[0.45em] text-foreground/90">
+                NETWORK
+              </div>
+            </div>
             <h1 className="sr-only">{storeName ?? STORE_CONFIG.serverName}</h1>
           </div>
 
