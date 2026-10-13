@@ -46,6 +46,7 @@ type T4Product = {
   small_description?: string | null;
   description?: string | null;
   image?: string | null;
+  image_url?: string | null;
   price: number;
   old_price?: number | null;
   status?: boolean;
@@ -66,7 +67,7 @@ function mapProduct(p: T4Product, currency: string): TebexPackage {
     id: p.id,
     name: p.name,
     description: p.description ?? p.small_description ?? null,
-    image: p.image ?? null,
+    image: p.image ?? p.image_url ?? null,
     base_price: old ?? p.price,
     total_price: p.price,
     discount: old ? old - p.price : 0,

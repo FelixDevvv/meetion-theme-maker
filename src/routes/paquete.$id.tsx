@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
@@ -33,6 +34,7 @@ function PackagePage() {
   const { id } = Route.useParams();
   const { data: pkg } = useSuspenseQuery(packageQuery(Number(id)));
   const { add, loading } = useBasket();
+  const [imageFailed, setImageFailed] = useState(false);
 
   if (!pkg) {
     return (
@@ -48,8 +50,13 @@ function PackagePage() {
     <StoreLayout>
       <article className="panel-card grid gap-6 p-6 md:grid-cols-[240px_1fr]">
         <div className="flex items-center justify-center rounded-md bg-background/40 p-4">
-          {pkg.image ? (
-            <img src={pkg.image} alt={pkg.name} className="max-h-56 w-auto object-contain" />
+          {pkg.image && !imageFailed ? (
+            <img
+              src={pkg.image}
+              alt={pkg.name}
+              onError={() => setImageFailed(true)}
+              className="max-h-56 w-auto object-contain"
+            />
           ) : (
             <div className="gradient-primary h-40 w-40 rounded-md" />
           )}
