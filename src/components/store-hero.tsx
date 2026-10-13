@@ -59,7 +59,7 @@ export function StoreHero({ storeName }: { storeName?: string }) {
               aria-label="Volver al inicio"
               className="panel-card flex size-14 items-center justify-center p-1.5 text-foreground transition-transform hover:scale-105"
             >
-              <span className="font-display text-2xl font-black tracking-tight text-primary-glow">V</span>
+              <img src="/images/vortex-favicon.png" alt="VortexMC Network" className="size-full object-contain" />
             </Link>
             <div className="flex items-center gap-2">
               <button
@@ -93,14 +93,13 @@ export function StoreHero({ storeName }: { storeName?: string }) {
           </div>
 
           <div className="flex flex-1 flex-col items-center justify-center py-8">
-            <div className="animate-brand-pulse text-center">
-              <div className="font-display text-[clamp(2rem,7vw,5rem)] font-black leading-none tracking-[0.08em] text-primary-glow">
-                VORTEXMC
-              </div>
-              <div className="mt-2 font-display text-[clamp(0.8rem,2vw,1.35rem)] font-bold tracking-[0.45em] text-foreground/90">
-                NETWORK
-              </div>
-            </div>
+            <img
+              src="/images/vortex-title.png"
+              alt={storeName ?? STORE_CONFIG.serverName}
+              width={1024}
+              height={310}
+              className="animate-brand-pulse w-[min(88vw,680px)] object-contain"
+            />
             <h1 className="sr-only">{storeName ?? STORE_CONFIG.serverName}</h1>
           </div>
 
