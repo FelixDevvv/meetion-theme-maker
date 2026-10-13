@@ -14,11 +14,11 @@ async function tip4serv<T>(
   path: string,
   init?: { method?: string; body?: unknown; auth?: boolean },
 ): Promise<T> {
-  const key = process.env.TIP4SERV_API_KEY;
+  const key = process.env['TIP4SERV_API_KEY'];
   const headers: Record<string, string> = { Accept: "application/json" };
   if (init?.auth !== false) {
     if (!key) throw new Error("Falta la clave de Tip4Serv.");
-    headers.Authorization = `Bearer ${key}`;
+    headers['Authorization'] = `Bearer ${key}`;
   }
   if (init?.body) headers["Content-Type"] = "application/json";
   const res = await fetch(`${TIP4SERV_API}${path}`, {
@@ -71,10 +71,9 @@ function mapProduct(p: T4Product, currency: string): TebexPackage {
     total_price: p.price,
     discount: old ? old - p.price : 0,
     currency,
-    category:
-      typeof p.category === "object"
-        ? { id: p.category.id, name: p.category.name }
-        : undefined,
+    ...(typeof p.category === "object"
+      ? { category: { id: p.category.id, name: p.category.name } }
+      : {}),
   };
 }
 
@@ -126,8 +125,8 @@ export const getCategories = createServerFn({ method: "GET" }).handler(async () 
       parent: parent ? { id: parent.id, name: parent.name.trim(), slug: parent.slug } : null,
       order: index,
       packages: products.filter((_, i) => {
-        const cat = raw[i].category;
-        return (typeof cat === "object" ? cat.id : cat) === c.id;
+        const cat = raw[i]?.category;
+        return (cat && typeof cat === "object" ? cat.id : cat) === c.id;
       }),
     };
   });
