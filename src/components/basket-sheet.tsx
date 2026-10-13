@@ -91,7 +91,7 @@ export function BasketSheet() {
             disabled={loading || items.length === 0}
             onClick={() => void checkout()}
           >
-            Pagar con Tebex
+            Pagar con Tip4Serv
           </Button>
         </div>
       </SheetContent>

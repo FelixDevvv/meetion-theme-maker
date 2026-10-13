@@ -12,7 +12,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Compra rangos VIP, llaves y cosméticos para VortexMC Network. Pagos seguros con Tebex y entrega instantánea en el servidor.",
+          "Compra rangos VIP, llaves y cosméticos para VortexMC Network. Pagos seguros con Tip4Serv y entrega instantánea en el servidor.",
       },
       { property: "og:title", content: "Tienda VortexMC Network — Rangos, llaves y cosméticos" },
       {

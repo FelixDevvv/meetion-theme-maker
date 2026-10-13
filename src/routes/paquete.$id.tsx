@@ -13,14 +13,14 @@ export const Route = createFileRoute("/paquete/$id")({
       { title: "Paquete — Tienda VortexMC Network" },
       {
         name: "description",
-        content: "Detalles del paquete: precio, contenido y compra segura con Tebex.",
+        content: "Detalles del paquete: precio, contenido y compra segura con Tip4Serv.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:title", content: "Paquete — Tienda VortexMC Network" },
       {
         property: "og:description",
-        content: "Detalles del paquete: precio, contenido y compra segura con Tebex.",
+        content: "Detalles del paquete: precio, contenido y compra segura con Tip4Serv.",
       },
     ],
   }),
