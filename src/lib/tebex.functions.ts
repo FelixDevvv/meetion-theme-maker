@@ -91,46 +91,49 @@ async function fetchAllProducts() {
   return { products: all.map((p) => mapProduct(p, currency)), raw: all, currency };
 }
 
+const fallbackPackages: TebexPackage[] = [
+  { id: 1, name: "Rango VIP", description: "Beneficios exclusivos para tu aventura.", image: null, base_price: 14.99, total_price: 9.99, discount: 5, currency: "USD", category: { id: 1, name: "Rangos" } },
+  { id: 2, name: "Rango MVP", description: "Más ventajas, cosméticos y prioridad.", image: null, base_price: 24.99, total_price: 17.99, discount: 7, currency: "USD", category: { id: 1, name: "Rangos" } },
+  { id: 3, name: "Caja Legendaria", description: "Una caja con recompensas aleatorias.", image: null, base_price: 8.99, total_price: 6.99, discount: 2, currency: "USD", category: { id: 2, name: "Cajas" } },
+];
+
+const fallbackCategories: TebexCategory[] = [
+  { id: 1, name: "Rangos", slug: "rangos", description: null, parent: null, order: 0, packages: fallbackPackages.filter((pkg) => pkg.category?.id === 1) },
+  { id: 2, name: "Cajas", slug: "cajas", description: null, parent: null, order: 1, packages: fallbackPackages.filter((pkg) => pkg.category?.id === 2) },
+];
+
 export const getStore = createServerFn({ method: "GET" }).handler(async () => {
-  const s = await tip4serv<{ id: number; title: string; description: string; currency: string; logo: string }>(
-    "/store/whoami",
-  );
-  const store: TebexStore = {
-    id: s.id,
-    name: s.title,
-    description: s.description ?? null,
-    currency: s.currency,
-    logo: s.logo ?? null,
-    platform_type: "tip4serv",
-  };
-  return store;
+  try {
+    const s = await tip4serv<{ id: number; title: string; description: string; currency: string; logo: string }>(
+      "/store/whoami",
+    );
+    return { id: s.id, name: s.title, description: s.description ?? null, currency: s.currency, logo: s.logo ?? null, platform_type: "tip4serv" } satisfies TebexStore;
+  } catch (error) {
+    console.warn("Tip4Serv no está disponible; usando configuración local.", error);
+    return { id: TIP4SERV_STORE_ID, name: "VortexMC Network", description: "Tienda oficial", currency: "USD", logo: null, platform_type: "tip4serv" } satisfies TebexStore;
+  }
 });
 
 export const getCategories = createServerFn({ method: "GET" }).handler(async () => {
-  const [cats, { products, raw }] = await Promise.all([
-    tip4serv<{ categories: T4Category[] }>("/store/categories"),
-    fetchAllProducts(),
-  ]);
-  const list = (cats.categories ?? []).filter((c) => !c.hide && c.slug !== "home");
-  const byId = new Map(list.map((c) => [c.id, c]));
-  const result: TebexCategory[] = list.map((c, index) => {
-    const parentId =
-      typeof c.parent === "number" ? c.parent : c.parent && typeof c.parent === "object" ? c.parent.id : null;
-    const parent = parentId != null ? byId.get(parentId) : undefined;
-    return {
-      id: c.id,
-      name: c.name.trim(),
-      slug: c.slug,
-      description: null,
-      parent: parent ? { id: parent.id, name: parent.name.trim(), slug: parent.slug } : null,
-      order: index,
-      packages: products.filter((_, i) => {
+  try {
+    const [cats, { products, raw }] = await Promise.all([
+      tip4serv<{ categories: T4Category[] }>("/store/categories"),
+      fetchAllProducts(),
+    ]);
+    const list = (cats.categories ?? []).filter((c) => !c.hide && c.slug !== "home");
+    const byId = new Map(list.map((c) => [c.id, c]));
+    return list.map((c, index) => {
+      const parentId = typeof c.parent === "number" ? c.parent : c.parent && typeof c.parent === "object" ? c.parent.id : null;
+      const parent = parentId != null ? byId.get(parentId) : undefined;
+      return { id: c.id, name: c.name.trim(), slug: c.slug, description: null, parent: parent ? { id: parent.id, name: parent.name.trim(), slug: parent.slug } : null, order: index, packages: products.filter((_, i) => {
         const cat = raw[i]?.category;
         return (cat && typeof cat === "object" ? cat.id : cat) === c.id;
-      }),
-    };
-  });
-  return result;
+      }) } satisfies TebexCategory;
+    });
+  } catch (error) {
+    console.warn("Tip4Serv no está disponible; mostrando paquetes de demostración.", error);
+    return fallbackCategories;
+  }
 });
 
 export const getPackage = createServerFn({ method: "GET" })
