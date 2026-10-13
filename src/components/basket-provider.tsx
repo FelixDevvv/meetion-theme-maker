@@ -136,7 +136,7 @@ export function BasketProvider({ children }: { children: ReactNode }) {
       complete: false,
       base_price: total,
       total_price: total,
-      currency: items[0].currency,
+      currency: items[0]?.currency ?? "USD",
       packages: items.map((i) => ({
         id: i.id,
         name: i.name,
