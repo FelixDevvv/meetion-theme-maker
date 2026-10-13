@@ -18,7 +18,7 @@ export function StoreLayout({ children }: { children: ReactNode }) {
         <main className="min-w-0 flex-1 space-y-5">{children}</main>
       </div>
       <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground">
-        Los pagos se procesan de forma segura a través de Tebex. Todas las compras son
+        Los pagos se procesan de forma segura a través de Tip4Serv. Todas las compras son
         finales.
       </footer>
       <BasketSheet />

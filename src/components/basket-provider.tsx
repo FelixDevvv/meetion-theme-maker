@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
   createContext,
@@ -9,19 +10,14 @@ import {
   type ReactNode,
 } from "react";
 import { toast } from "sonner";
-import {
-  addPackageToBasket,
-  createBasket,
-  getBasket,
-  getBasketAuthLinks,
-  removePackageFromBasket,
-  updateBasketQuantity,
-} from "@/lib/tebex.functions";
-import type { TebexBasket } from "@/lib/tebex";
+import { createCheckout } from "@/lib/tebex.functions";
+import type { TebexBasket, TebexCategory, TebexPackage } from "@/lib/tebex";
+import { categoriesQuery } from "@/lib/tebex-queries";
 
-const BASKET_KEY = "tebex_basket_ident";
+const BASKET_KEY = "t4s_basket";
 const USERNAME_KEY = "tebex_username";
-const PENDING_KEY = "tebex_pending_package";
+
+type StoredItem = { id: number; name: string; image: string | null; price: number; currency: string; quantity: number };
 
 type BasketContextValue = {
   basket: TebexBasket | null;
@@ -39,51 +35,28 @@ type BasketContextValue = {
 
 const BasketContext = createContext<BasketContextValue | null>(null);
 
-// Tebex puede devolver arrays anidados (p.ej. `[[]]`) cuando la tienda no tiene
-// métodos de login activos. Buscamos recursivamente la primera URL válida.
-function findAuthUrl(raw: unknown): string | null {
-  if (!raw) return null;
-  if (Array.isArray(raw)) {
-    for (const entry of raw) {
-      const found = findAuthUrl(entry);
-      if (found) return found;
-    }
-    return null;
-  }
-  if (typeof raw === "object" && "url" in raw) {
-    const url = (raw as { url?: unknown }).url;
-    return typeof url === "string" && url.length > 0 ? url : null;
-  }
-  return null;
-}
-
 export function BasketProvider({ children }: { children: ReactNode }) {
-  const create = useServerFn(createBasket);
-  const fetchBasket = useServerFn(getBasket);
-  const addItem = useServerFn(addPackageToBasket);
-  const updateItem = useServerFn(updateBasketQuantity);
-  const removeItem = useServerFn(removePackageFromBasket);
-  const authLinks = useServerFn(getBasketAuthLinks);
-
-  const [basket, setBasket] = useState<TebexBasket | null>(null);
+  const queryClient = useQueryClient();
+  const startCheckout = useServerFn(createCheckout);
+  const [items, setItems] = useState<StoredItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [username, setUsernameState] = useState<string | null>(null);
 
   useEffect(() => {
     setUsernameState(localStorage.getItem(USERNAME_KEY));
-    const ident = localStorage.getItem(BASKET_KEY);
-    if (!ident) return;
-    fetchBasket({ data: { ident } })
-      .then((data) => {
-        if (data.complete) {
-          localStorage.removeItem(BASKET_KEY);
-          return;
-        }
-        setBasket(data);
-      })
-      .catch(() => localStorage.removeItem(BASKET_KEY));
-  }, [fetchBasket]);
+    try {
+      const raw = localStorage.getItem(BASKET_KEY);
+      if (raw) setItems(JSON.parse(raw) as StoredItem[]);
+    } catch {
+      localStorage.removeItem(BASKET_KEY);
+    }
+  }, []);
+
+  const persist = useCallback((next: StoredItem[]) => {
+    setItems(next);
+    localStorage.setItem(BASKET_KEY, JSON.stringify(next));
+  }, []);
 
   const setUsername = useCallback((value: string | null) => {
     setUsernameState(value);
@@ -91,160 +64,95 @@ export function BasketProvider({ children }: { children: ReactNode }) {
     else localStorage.removeItem(USERNAME_KEY);
   }, []);
 
-  const ensureBasket = useCallback(async () => {
-    const existing = localStorage.getItem(BASKET_KEY);
-    if (existing && basket && !basket.complete) return existing;
-    const created = await create({
-      data: { origin: window.location.origin, username: localStorage.getItem(USERNAME_KEY) },
-    });
-    localStorage.setItem(BASKET_KEY, created.ident);
-    setBasket(created);
-    return created.ident;
-  }, [basket, create]);
-
-  const withErrors = useCallback(async (fn: () => Promise<void>) => {
-    setLoading(true);
-    try {
-      await fn();
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Algo salió mal con Tebex.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const findPackage = useCallback(
+    async (id: number): Promise<TebexPackage | undefined> => {
+      const cats = (await queryClient.ensureQueryData(categoriesQuery)) as TebexCategory[];
+      for (const c of cats) {
+        const p = c.packages.find((x) => x.id === id);
+        if (p) return p;
+      }
+      return undefined;
+    },
+    [queryClient],
+  );
 
   const add = useCallback(
     async (packageId: number, quantity = 1) => {
-      await withErrors(async () => {
-        const ident = await ensureBasket();
-
-        // Las tiendas de Minecraft exigen vincular la cuenta antes de añadir
-        // paquetes. Si Tebex devuelve enlaces de auth, la cesta no está
-        // autenticada todavía: enviamos al usuario a iniciar sesión y al
-        // volver añadimos el paquete pendiente automáticamente.
-        const authUrl = await authLinks({
-          data: { ident, returnUrl: `${window.location.origin}${window.location.pathname}` },
-        })
-          .then(findAuthUrl)
-          .catch(() => null);
-
-        if (authUrl) {
-          localStorage.setItem(PENDING_KEY, JSON.stringify({ packageId, quantity }));
-          toast.info("Vincula tu cuenta del juego para continuar…");
-          window.location.href = authUrl;
+      const existing = items.find((i) => i.id === packageId);
+      if (existing) {
+        persist(items.map((i) => (i.id === packageId ? { ...i, quantity: i.quantity + quantity } : i)));
+      } else {
+        const pkg = await findPackage(packageId);
+        if (!pkg) {
+          toast.error("No se encontró el paquete.");
           return;
         }
-
-        try {
-          const updated = await addItem({ data: { ident, packageId, quantity } });
-          setBasket(updated);
-          setOpen(true);
-          toast.success("Añadido a la cesta");
-        } catch (error) {
-          const message = error instanceof Error ? error.message : "";
-          if (message.includes("must login")) {
-            throw new Error(
-              "Tebex requiere vincular la cuenta del juego, pero la tienda no tiene métodos de login activos. Activa la tienda y su autenticación en el panel de Tebex.",
-            );
-          }
-          throw error;
-        }
-
-      });
+        persist([
+          ...items,
+          { id: pkg.id, name: pkg.name, image: pkg.image, price: pkg.total_price, currency: pkg.currency, quantity },
+        ]);
+      }
+      setOpen(true);
+      toast.success("Añadido a la cesta");
     },
-    [addItem, authLinks, ensureBasket, withErrors],
+    [findPackage, items, persist],
   );
-
-  // Al regresar del login de Tebex, añade el paquete que quedó pendiente.
-  useEffect(() => {
-    const raw = localStorage.getItem(PENDING_KEY);
-    if (!raw) return;
-    localStorage.removeItem(PENDING_KEY);
-    try {
-      const pending = JSON.parse(raw) as { packageId: number; quantity?: number };
-      void add(pending.packageId, pending.quantity ?? 1);
-    } catch {
-      /* ignorar */
-    }
-  }, [add]);
-
 
   const setQuantity = useCallback(
     async (packageId: number, quantity: number) => {
-      await withErrors(async () => {
-        const ident = await ensureBasket();
-        const updated =
-          quantity <= 0
-            ? await removeItem({ data: { ident, packageId } })
-            : await updateItem({ data: { ident, packageId, quantity } });
-        setBasket(updated);
-      });
+      persist(
+        quantity <= 0
+          ? items.filter((i) => i.id !== packageId)
+          : items.map((i) => (i.id === packageId ? { ...i, quantity } : i)),
+      );
     },
-    [ensureBasket, removeItem, updateItem, withErrors],
+    [items, persist],
   );
 
   const remove = useCallback(
-    async (packageId: number) => {
-      await withErrors(async () => {
-        const ident = await ensureBasket();
-        const updated = await removeItem({ data: { ident, packageId } });
-        setBasket(updated);
-      });
-    },
-    [ensureBasket, removeItem, withErrors],
+    async (packageId: number) => persist(items.filter((i) => i.id !== packageId)),
+    [items, persist],
   );
 
   const checkout = useCallback(async () => {
-    await withErrors(async () => {
-      const ident = await ensureBasket();
-      const authUrl = await authLinks({
-        data: { ident, returnUrl: `${window.location.origin}/` },
-      })
-        .then(findAuthUrl)
-        .catch(() => null);
+    setLoading(true);
+    try {
+      const { url } = await startCheckout({
+        data: { origin: window.location.origin, items: items.map((i) => ({ id: i.id, quantity: i.quantity })) },
+      });
+      localStorage.removeItem(BASKET_KEY);
+      window.location.href = url;
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudo iniciar el pago.");
+      setLoading(false);
+    }
+  }, [items, startCheckout]);
 
-      if (authUrl) {
-        window.location.href = authUrl;
-        return;
-      }
+  const basket = useMemo<TebexBasket | null>(() => {
+    if (items.length === 0) return null;
+    const total = items.reduce((s, i) => s + i.price * i.quantity, 0);
+    return {
+      ident: "local",
+      complete: false,
+      base_price: total,
+      total_price: total,
+      currency: items[0].currency,
+      packages: items.map((i) => ({
+        id: i.id,
+        name: i.name,
+        quantity: i.quantity,
+        image: i.image,
+        in_basket: { quantity: i.quantity, price: i.price * i.quantity },
+      })),
+      links: { checkout: "" },
+    };
+  }, [items]);
 
-      const current = basket ?? (await fetchBasket({ data: { ident } }));
-      if (!current.links?.checkout) throw new Error("Tebex no devolvió un enlace de pago.");
-      window.location.href = current.links.checkout;
-    });
-  }, [authLinks, basket, ensureBasket, fetchBasket, withErrors]);
-
-  const itemCount = useMemo(
-    () => basket?.packages?.reduce((sum, p) => sum + (p.in_basket?.quantity ?? 0), 0) ?? 0,
-    [basket],
-  );
+  const itemCount = useMemo(() => items.reduce((s, i) => s + i.quantity, 0), [items]);
 
   const value = useMemo(
-    () => ({
-      basket,
-      loading,
-      username,
-      setUsername,
-      open,
-      setOpen,
-      itemCount,
-      add,
-      setQuantity,
-      remove,
-      checkout,
-    }),
-    [
-      basket,
-      loading,
-      username,
-      setUsername,
-      open,
-      itemCount,
-      add,
-      setQuantity,
-      remove,
-      checkout,
-    ],
+    () => ({ basket, loading, username, setUsername, open, setOpen, itemCount, add, setQuantity, remove, checkout }),
+    [basket, loading, username, setUsername, open, itemCount, add, setQuantity, remove, checkout],
   );
 
   return <BasketContext.Provider value={value}>{children}</BasketContext.Provider>;

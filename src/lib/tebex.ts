@@ -1,12 +1,9 @@
 /**
- * Configuración de la tienda Tebex (Headless API).
- *
- * TEBEX_PUBLIC_TOKEN es el identificador público del webstore: es seguro
- * exponerlo en el cliente (solo permite leer el catálogo y gestionar cestas).
+ * Configuración de la tienda Tip4Serv.
+ * La clave API privada vive en el secreto TIP4SERV_API_KEY (solo servidor).
  */
-export const TEBEX_PUBLIC_TOKEN = "14sjg-83f780ca8298d2adaaf3f0fb947e5a9984283adf";
-
-export const TEBEX_API = "https://headless.tebex.io/api";
+export const TIP4SERV_API = "https://api.tip4serv.com/v1";
+export const TIP4SERV_STORE_ID = 10041;
 
 /**
  * Datos que la Headless API de Tebex no expone.

@@ -1,12 +1,15 @@
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ChevronUp, Gift, LayoutGrid, Trophy, Users } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { STORE_CONFIG, avatarUrl, categorySlug, type TebexCategory } from "@/lib/tebex";
+import { avatarUrl, categorySlug, type TebexCategory } from "@/lib/tebex";
+import { paymentsQuery } from "@/lib/tebex-queries";
 
 export function StoreSidebar({ categories }: { categories: TebexCategory[] }) {
+  const { data: payments } = useQuery(paymentsQuery);
   const [openCategories, setOpenCategories] = useState(true);
   const [openCategoryIds, setOpenCategoryIds] = useState<Set<number>>(() => new Set());
   const [coupon, setCoupon] = useState("");
@@ -121,38 +124,46 @@ export function StoreSidebar({ categories }: { categories: TebexCategory[] }) {
         <h2 className="label-caps flex items-center gap-2 text-muted-foreground">
           <Trophy className="size-4 text-primary-glow" /> Top donador
         </h2>
-        <div className="mt-3 flex items-center gap-3">
-          <img
-            src={avatarUrl(STORE_CONFIG.topDonor.name)}
-            alt=""
-            loading="lazy"
-            className="size-9 rounded"
-          />
-          <div>
-            <p className="font-display text-sm uppercase text-primary-glow">
-              {STORE_CONFIG.topDonor.name}
-            </p>
-            <p className="text-xs text-muted-foreground">{STORE_CONFIG.topDonor.note}</p>
+        {payments?.topDonor ? (
+          <div className="mt-3 flex items-center gap-3">
+            <img
+              src={avatarUrl(payments.topDonor.name)}
+              alt=""
+              loading="lazy"
+              className="size-9 rounded"
+            />
+            <div>
+              <p className="font-display text-sm uppercase text-primary-glow">
+                {payments.topDonor.name}
+              </p>
+              <p className="text-xs text-muted-foreground">Es el jugador que más ha apoyado.</p>
+            </div>
           </div>
-        </div>
+        ) : (
+          <p className="mt-3 text-xs text-muted-foreground">Aún no hay donaciones. ¡Sé el primero!</p>
+        )}
       </div>
 
       <div className="panel-card p-4">
         <h2 className="label-caps flex items-center gap-2 text-muted-foreground">
           <Users className="size-4 text-primary-glow" /> Pagos recientes
         </h2>
-        <div className="mt-3 grid grid-cols-6 gap-2">
-          {STORE_CONFIG.recentPayments.map((name) => (
-            <img
-              key={name}
-              src={avatarUrl(name)}
-              alt={name}
-              title={name}
-              loading="lazy"
-              className="size-8 rounded"
-            />
-          ))}
-        </div>
+        {payments && payments.recent.length > 0 ? (
+          <div className="mt-3 grid grid-cols-6 gap-2">
+            {payments.recent.map((p, i) => (
+              <img
+                key={`${p.username}-${p.date}-${i}`}
+                src={avatarUrl(p.username)}
+                alt={p.username}
+                title={p.username}
+                loading="lazy"
+                className="size-8 rounded"
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="mt-3 text-xs text-muted-foreground">Todavía no hay pagos recientes.</p>
+        )}
       </div>
 
       <div className="panel-card p-4">
@@ -170,7 +181,7 @@ export function StoreSidebar({ categories }: { categories: TebexCategory[] }) {
             variant="secondary"
             onClick={() =>
               toast.info(
-                "Los códigos de tarjeta regalo y cupones se aplican en el checkout de Tebex.",
+                "Los códigos de tarjeta regalo y cupones se aplican en el pago de Tip4Serv.",
               )
             }
           >
